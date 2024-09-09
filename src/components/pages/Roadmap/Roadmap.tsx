@@ -3,7 +3,6 @@ import { Container, Typography, Card, CardContent, Avatar, Grid, Button, LinearP
 import { useNavigate } from 'react-router-dom';
 import { courseData } from '../../../data/courses/courseData';
 
-
 const Roadmap: React.FC = () => {
   const navigate = useNavigate();
 
@@ -30,7 +29,7 @@ const Roadmap: React.FC = () => {
               <Grid item xs={8}>
                 <Typography variant="h6">{course.title}</Typography>
                 <Typography variant="body2" color="textSecondary">
-                  {course.lessons.length} Lessons
+                  {course.topics.length} Topics
                 </Typography>
               </Grid>
               <Grid item xs={4} sx={{ textAlign: 'right' }}>

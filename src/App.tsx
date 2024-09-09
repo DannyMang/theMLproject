@@ -9,7 +9,7 @@ import SignUp from './components/SignUp/SignUp';
 import LessonOverview from './components/pages/Lessons/LessonOverview/LessonOverview';
 import LessonContent from './components/pages/Lessons/LessonContent/LessonContent';
 import Contribute from './components/pages/Contribute/Contribute';  
-import { courseData, Course, Lesson } from './data/courses/courseData';
+import { courseData, Course, Topic, Subtopic } from './data/courses/courseData';
 
 const App: React.FC = () => {
   const [mode, setMode] = useState<'light' | 'dark'>('light');
@@ -33,47 +33,59 @@ const App: React.FC = () => {
     setIsAuthenticated(true);
   };
 
-  const renderLessonRoutes = (lessons: Lesson[], coursePath: string): JSX.Element[] => {
-    return lessons.flatMap((lesson: Lesson, index: number) => {
-      const routes = [];
-
-      if (lesson.subLessons) {
-        routes.push(
-          <Route
-            key={lesson.path}
-            path={lesson.path}
-            element={
-              <LessonOverview
-                title={lesson.title}
-                description=""
-                subLessons={lesson.subLessons}
-                coursePath={coursePath}
-              />
-            }
+  const renderCourseRoutes = (course: Course): JSX.Element[] => {
+    const routes: JSX.Element[] = [
+      <Route
+        key={course.path}
+        path={course.path}
+        element={
+          <LessonOverview
+            title={course.title}
+            description={course.description|| ""}
+            topics={course.topics}
+            coursePath={course.path}
           />
-        );
-        routes.push(...renderLessonRoutes(lesson.subLessons, coursePath));
-      } else {
+        }
+      />
+    ];
+
+    course.topics.forEach((topic: Topic) => {
+      routes.push(
+        <Route
+          key={topic.path}
+          path={topic.path}
+          element={
+            <LessonOverview
+              title={topic.title}
+              description=""
+              topics={[topic]}
+              coursePath={course.path}
+            />
+          }
+        />
+      );
+
+      topic.subtopics.forEach((subtopic: Subtopic, index: number) => {
         routes.push(
           <Route
-            key={lesson.path}
-            path={lesson.path}
+            key={subtopic.path}
+            path={subtopic.path}
             element={
               <LessonContent
-                title={lesson.title}
-                contentPath={lesson.contentPath || ''}
+                title={subtopic.title}
+                contentPath={`${process.env.PUBLIC_URL}/data/courses/lessonContent${subtopic.path}.md`}
                 assignment=""
-                nextLessonPath={index < lessons.length - 1 ? lessons[index + 1].path : null}
-                prevLessonPath={index > 0 ? lessons[index - 1].path : null}
-                coursePath={coursePath}
+                nextLessonPath={index < topic.subtopics.length - 1 ? topic.subtopics[index + 1].path : null}
+                prevLessonPath={index > 0 ? topic.subtopics[index - 1].path : null}
+                coursePath={course.path}
               />
             }
           />
         );
-      }
-
-      return routes;
+      });
     });
+
+    return routes;
   };
 
   return (
@@ -104,27 +116,17 @@ const App: React.FC = () => {
               isAuthenticated ? <AllPaths /> : <Navigate to="/" replace />
             }
           />
-           <Route path="/contribute" element= {
-            isAuthenticated ? <Contribute /> : <Navigate to="/" replace />
+          <Route 
+            path="/contribute" 
+            element={
+              isAuthenticated ? <Contribute /> : <Navigate to="/" replace />
             }
-           />
-
+          />
           <Route path="/signup" element={<SignUp onAuthentication={handleAuthentication} />} />
           
           {courseData.map((course: Course) => (
             <React.Fragment key={course.path}>
-              <Route
-                path={course.path}
-                element={
-                  <LessonOverview
-                    title={course.title}
-                    description=""
-                    subLessons={course.lessons}
-                    coursePath={course.path}
-                  />
-                }
-              />
-              {renderLessonRoutes(course.lessons, course.path)}
+              {renderCourseRoutes(course)}
             </React.Fragment>
           ))}
         </Routes>

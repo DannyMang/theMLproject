@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Typography, Card, CardContent, Button, Box, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -21,18 +21,22 @@ const LessonContent: React.FC<LessonContentProps> = ({
   coursePath 
 }) => {
   const navigate = useNavigate();
-  const [content, setContent] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [content, setContent] = React.useState<string>('');
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchContent = async () => {
       try {
         const response = await fetch(contentPath);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const text = await response.text();
         setContent(text);
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching lesson content:', error);
+        setContent('Failed to load lesson content. Please try again later.');
         setIsLoading(false);
       }
     };
@@ -46,10 +50,18 @@ const LessonContent: React.FC<LessonContentProps> = ({
 
   return (
     <Card>
-      <CardContent>
-        <Typography variant="h4" gutterBottom>{title}</Typography>
+      <CardContent sx={{ maxWidth: '800px', margin: '0 auto', padding: '0 20px' }}>
+        <Typography variant="h5" gutterBottom>{title}</Typography>
         <Box sx={{ my: 4 }}>
-          <ReactMarkdown>{content}</ReactMarkdown>
+          <ReactMarkdown
+            components={{
+              img: ({ node, ...props }) => (
+                <img style={{ maxWidth: '100%', height: 'auto' }} {...props} alt={props.alt || ''} />
+              ),
+            }}
+          >
+            {content}
+          </ReactMarkdown>
         </Box>
         {assignment && (
           <Box sx={{ my: 4, p: 2, bgcolor: 'grey.100' }}>

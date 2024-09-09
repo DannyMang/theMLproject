@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Typography, Card, CardContent, Grid, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { courseData } from './../../data/courses/courseData';
+import { courseData } from '../../data/courses/courseData';
 
 const AllPaths: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const AllPaths: React.FC = () => {
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>{course.title}</Typography>
-                <Typography variant="subtitle1" gutterBottom>{course.lessons.length} Lessons</Typography>
+                <Typography variant="subtitle1" gutterBottom>{course.topics.length} Topics</Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <Button variant="contained" color="primary" onClick={() => navigate(course.path)}>
                     Start
